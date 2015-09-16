@@ -5,7 +5,7 @@ CFLAGS = -Wall -g
 INCLUDES = -I . 
 
 # define the C source files
-SRCS = NaLIRSystem.cpp
+SRCS = NaLIRSystem.cpp Sentence.cpp
 
 OBJS = $(SRCS:.c=.o)
 
