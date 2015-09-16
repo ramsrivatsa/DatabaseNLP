@@ -180,7 +180,7 @@ void Sentence::wordSplit(std::string& queryInput)
     //cout<<start;
     //cout<<queryInput[queryInput.length()-1]<<endl;
     bool ifCited = false;
-    for(int i = 0; i < queryInput.length(); i++) {
+    for(unsigned int i = 0; i < queryInput.length(); i++) {
         char c = queryInput[i];
         //cout<<c<<endl;
 		if(c == '\t' || c == '\n' || c == ' ') {
@@ -238,7 +238,7 @@ void Sentence::wordSplit(std::string& queryInput)
 
 void Sentence::printForCheck() 
 {
-    for(int it=0; it<wordList.size(); it++) {
+    for(unsigned int it=0; it<wordList.size(); it++) {
         cout<<wordList[it]<<endl;
 
     }
