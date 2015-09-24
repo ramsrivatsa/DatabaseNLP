@@ -8,6 +8,9 @@ class NaLIRSystem
 	    int TOPJ; 
 	    int TOPK;  
         void conductCommand(std::string&);
+        std::vector<std::string> vectorizeWords(std::string&);
+        int countWords(std::string&);
+        void createConll(std::vector<std::string>);
 
     NaLIRSystem()
     {

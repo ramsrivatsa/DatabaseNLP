@@ -1,5 +1,8 @@
 #include<iostream>
-#include<string>
+#include<fstream>
+#include<string.h>
+#include <stdlib.h>
+#include<vector>
 #include "NaLIRSystem.h"
 #include "Sentence.h"
 using namespace std;
@@ -7,7 +10,7 @@ using namespace std;
 int main() {
     NaLIRSystem system;
     //cout << "Start of the program"<<endl;
-    string command = "##2_query## show me the papers' on VLDB.";
+    string command = "##2_query## show me the number of citations of \"Making database systems usable\" in each year.";
     //cout << command << endl;
     system.conductCommand(command);
 
@@ -24,6 +27,21 @@ void NaLIRSystem::conductCommand(std::string& command)
         Query nalirQuery(queryInput);
         //cout<<command.find_first_of("##2_query##")<<endl;
         //cout<<queryInput<<endl;
+        //int numberofwords = countWords(queryInput);
+        //cout << numberofwords<< endl;
+        vector <string>  words;
+        words = vectorizeWords(queryInput);
+        createConll(words);
+        std::vector<std::string>::iterator it;
+        it = words.begin();
+        for (it = words.begin(); it<words.end(); it++) {
+            std::cout << *it <<endl;
+        }
+
+        system("./../include/TurboParser/src/tagger/TurboTagger --test --file_model=/home/ram/DatabaseNLP/NaLIRcpp/include/TurboParser/models/english/tagger/english_proj_tagger.model --file_test=/home/ram/DatabaseNLP/NaLIRcpp/data/NaLIR.conll.tagging --file_prediction=/home/ram/DatabaseNLP/NaLIRcpp/data/NaLIR.conll.tagging.pred");
+
+        //cout<<numberOfWords<<endl;
+        //
     }
 		//{
 		//	if(command.split("## ").length > 1)
@@ -147,6 +165,93 @@ void NaLIRSystem::conductCommand(std::string& command)
     //cout<<command<<endl;
 
 
+}
+
+void NaLIRSystem::createConll(std::vector<std::string> words)
+{
+  std::vector<std::string>::iterator it;
+  it = words.begin();
+  int iterate = 0;
+  ofstream conllTagging;
+  conllTagging.open("../data/NaLIR.conll.tagging"); 
+  for (it = words.begin(); it<words.end(); it++) {
+      //std::cout << iterate <<"\t" << *it <<endl;
+      conllTagging << *it <<"\t_" << endl;
+      ++iterate;
+  }
+  conllTagging.close();
+
+
+}
+int NaLIRSystem::countWords(std::string& strString)
+{
+  int nSpaces = 0;
+  unsigned int i = 0;
+  // Skip over spaces at the beginning of the word
+  while(isspace(strString.at(i)))
+    i++;
+  //cout<<i<<endl;
+
+  for(; i < strString.length()-1; i++)
+  {
+    if(isspace(strString.at(i)))
+    {
+      nSpaces++;
+
+      // Skip over duplicate spaces & if a NULL character is found, we're at the end of the string
+      while(isspace(strString.at(++i)))
+        if(strString.at(i) == '\0') 
+          nSpaces--;
+    }
+  }
+  return nSpaces+1;
+
+}
+std::vector <std::string> NaLIRSystem::vectorizeWords(std::string& strString)
+{
+  //cout<<strString<<endl;
+  std::vector <std::string> tempWords;
+  std::vector <std::string> words;
+  string::size_type j = strString.find(' ');
+  int i=0;
+  while (j != string::npos) {
+      if(strString.substr(i, j-i).find_first_not_of(' ') != std::string::npos) {
+        tempWords.push_back(strString.substr(i, j-i));
+        i = ++j;
+        j = strString.find(' ', j);
+      } else {
+        i = ++j;
+        j = strString.find(' ', j);
+      }
+      
+      if (j == string::npos && strString.substr(i, j-i).find_first_not_of(' ') != std::string::npos){
+        tempWords.push_back(strString.substr(i, strString.length()));
+      }
+  }
+  
+  std::vector<std::string>::iterator it;
+  bool checkForEnd = true;
+  string tmpString;
+  for (it = tempWords.begin(); it<tempWords.end(); it++) {
+      if ((*it).find('"') != std::string::npos) { 
+          if(checkForEnd == false) {
+            tmpString = tmpString + (*it).substr(0,(*it).length()-1) + " ";
+            words.push_back(tmpString);
+          }
+          checkForEnd = !checkForEnd;
+          if(checkForEnd == false) {
+              tmpString = tmpString + (*it).substr(1,(*it).length()) + " ";
+              //std::cout << tmpString.substr(1,tmpString.length()) <<endl;
+          }
+      } else if(checkForEnd == false) {
+        tmpString = tmpString + *it + " ";
+        //std::cout << *it <<endl;
+      } else {
+        words.push_back(*it);
+        //std::cout << *it <<endl;
+      }
+  }
+  return words;
 }
 
 //void Sentence::wordSplit(std::string& queryInput)

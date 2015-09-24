@@ -2,7 +2,7 @@ CC = g++
 
 CFLAGS = -Wall -g
 
-INCLUDES = -I . 
+INCLUDES = -I ../include/ 
 
 # define the C source files
 SRCS = NaLIRSystem.cpp Sentence.cpp
@@ -11,7 +11,7 @@ OBJS = $(SRCS:.c=.o)
 
 # define the executable file 
 MAIN = NaLIR
-
+#LFLAGS = -L../../deps/local/lib -lad3 -lgflags -lglog
 
 .PHONY: depend clean
 
@@ -27,7 +27,7 @@ run: NaLIR
 	./NaLIR
 
 clean:
-	$(RM) *.o *~ $(MAIN)
+	$(RM) *.o *~ $(MAIN) ../data/*
 
 depend: $(SRCS)
 	makedepend $(INCLUDES) $^
