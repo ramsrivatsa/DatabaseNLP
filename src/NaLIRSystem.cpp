@@ -1,5 +1,6 @@
 #include<iostream>
 #include<fstream>
+#include<sstream>
 #include<string.h>
 #include <stdlib.h>
 #include<vector>
@@ -35,10 +36,14 @@ void NaLIRSystem::conductCommand(std::string& command)
         std::vector<std::string>::iterator it;
         it = words.begin();
         for (it = words.begin(); it<words.end(); it++) {
-            std::cout << *it <<endl;
+            //std::cout << *it <<endl;
         }
 
         system("./../include/TurboParser/src/tagger/TurboTagger --test --file_model=/home/ram/DatabaseNLP/NaLIRcpp/include/TurboParser/models/english/tagger/english_proj_tagger.model --file_test=/home/ram/DatabaseNLP/NaLIRcpp/data/NaLIR.conll.tagging --file_prediction=/home/ram/DatabaseNLP/NaLIRcpp/data/NaLIR.conll.tagging.pred");
+        //system("./../include/TurboParser/TurboParser --test --evaluate --file_model=/home/ram/DatabaseNLP/NaLIRcpp/include/TurboParser/models/english/parser/stanford_basic.model --file_test=../data/NaLIR.conll.predpos --file_prediction=../data/NaLIR.conll.predpos.pred");
+        createConllPredictedTags();
+        system("./../include/TurboParser/TurboParser --test --evaluate --file_model=/home/ram/DatabaseNLP/NaLIRcpp/include/TurboParser/models/english/parser/stanford_basic.model --file_test=../data/NaLIR.conll.predpos --file_prediction=../data/NaLIR.conll.predpos.pred");
+        
 
         //cout<<numberOfWords<<endl;
         //
@@ -183,6 +188,40 @@ void NaLIRSystem::createConll(std::vector<std::string> words)
 
 
 }
+
+void NaLIRSystem::createConllPredictedTags()
+{
+//  std::vector<std::string>::iterator it;
+//  it = words.begin();
+//  for (it = words.begin(); it<words.end(); it++) {
+//      conllTagging << iterate <<"\t" << *it <<"\t" <<"_" << endl;
+//      //conllTagging << *it <<"\t_" << endl;
+//      ++iterate;
+//  }
+//  conllTagging.close();
+//
+    std::string line;
+    std::ifstream inputFile("../data/NaLIR.conll.tagging.pred");
+    std::string first,second;
+    int iterate = 0;
+    ofstream conllTagging;
+    conllTagging.open("../data/NaLIR.conll.predpos"); 
+    while (std::getline(inputFile, line))
+    {
+        ++iterate;
+        std::istringstream iss(line);
+        //cout << line <<endl;
+        first = line.substr(0,line.find("\t"));
+        second = line.substr(line.find("\t")+1,line.length());
+        //cout<< first << " and " << second << endl;
+        if(!line.empty()) {
+            conllTagging<< iterate << "\t" <<first << "\t" << "_"  << "\t" << second << "\t" << second<< "\t" << "_" << "\t" << "_" << "\t" << "_" <<endl;
+        }
+    }
+    conllTagging.close();
+
+}
+
 int NaLIRSystem::countWords(std::string& strString)
 {
   int nSpaces = 0;
@@ -207,6 +246,7 @@ int NaLIRSystem::countWords(std::string& strString)
   return nSpaces+1;
 
 }
+
 std::vector <std::string> NaLIRSystem::vectorizeWords(std::string& strString)
 {
   //cout<<strString<<endl;

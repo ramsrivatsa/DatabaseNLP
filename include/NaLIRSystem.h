@@ -11,6 +11,7 @@ class NaLIRSystem
         std::vector<std::string> vectorizeWords(std::string&);
         int countWords(std::string&);
         void createConll(std::vector<std::string>);
+        void createConllPredictedTags();
 
     NaLIRSystem()
     {
