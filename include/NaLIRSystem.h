@@ -10,8 +10,9 @@ class NaLIRSystem
         void conductCommand(std::string&);
         std::vector<std::string> vectorizeWords(std::string&);
         int countWords(std::string&);
-        void createConll(std::vector<std::string>);
-        void createConllPredictedTags();
+
+        //Dependency Parser output
+        std::vector <std::vector <std::string> > treeTable;
 
     NaLIRSystem()
     {

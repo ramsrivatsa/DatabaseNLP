@@ -3,9 +3,12 @@
 class TurboParser
 {
     public:
-        void TurboParse(std::string&);
-        void buildTree(std::string&);
-        void fixConj(std::string&);
+        
+        std::vector <std::vector <std::string> > treeTable;
+        void createConll(std::vector<std::string>);
+        void createConllPredictedTags();
+        void parseDependencyOutput();
+        void viewDependencyOutput();
 
 };
 #endif

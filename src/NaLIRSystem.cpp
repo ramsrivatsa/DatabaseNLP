@@ -1,11 +1,10 @@
 #include<iostream>
-#include<fstream>
-#include<sstream>
 #include<string.h>
 #include <stdlib.h>
 #include<vector>
 #include "NaLIRSystem.h"
 #include "Sentence.h"
+#include "TurboParser.h"
 using namespace std;
 
 int main() {
@@ -23,6 +22,9 @@ void NaLIRSystem::conductCommand(std::string& command)
     //queryInput.replace(17, 2, "ram");
 
     if(command.find("##2_query##") != std::string::npos) {
+        /*
+         * 1. Initial Preprocessing stage
+         */
         std::string delimiter = "## ";
         std::string queryInput = command.substr(command.find(delimiter) + delimiter.length(), command.length());
         Query nalirQuery(queryInput);
@@ -32,7 +34,12 @@ void NaLIRSystem::conductCommand(std::string& command)
         //cout << numberofwords<< endl;
         vector <string>  words;
         words = vectorizeWords(queryInput);
-        createConll(words);
+
+        /*
+         * 2. Dependency Parsing stage
+         */
+        TurboParser turboParser;
+        turboParser.createConll(words);
         std::vector<std::string>::iterator it;
         it = words.begin();
         for (it = words.begin(); it<words.end(); it++) {
@@ -40,10 +47,11 @@ void NaLIRSystem::conductCommand(std::string& command)
         }
 
         system("./../include/TurboParser/src/tagger/TurboTagger --test --file_model=/home/ram/DatabaseNLP/NaLIRcpp/include/TurboParser/models/english/tagger/english_proj_tagger.model --file_test=/home/ram/DatabaseNLP/NaLIRcpp/data/NaLIR.conll.tagging --file_prediction=/home/ram/DatabaseNLP/NaLIRcpp/data/NaLIR.conll.tagging.pred");
-        //system("./../include/TurboParser/TurboParser --test --evaluate --file_model=/home/ram/DatabaseNLP/NaLIRcpp/include/TurboParser/models/english/parser/stanford_basic.model --file_test=../data/NaLIR.conll.predpos --file_prediction=../data/NaLIR.conll.predpos.pred");
-        createConllPredictedTags();
+        turboParser.createConllPredictedTags();
         system("./../include/TurboParser/TurboParser --test --evaluate --file_model=/home/ram/DatabaseNLP/NaLIRcpp/include/TurboParser/models/english/parser/stanford_basic.model --file_test=../data/NaLIR.conll.predpos --file_prediction=../data/NaLIR.conll.predpos.pred");
         
+        turboParser.parseDependencyOutput();
+        //turboParser.viewDependencyOutput();
 
         //cout<<numberOfWords<<endl;
         //
@@ -172,81 +180,6 @@ void NaLIRSystem::conductCommand(std::string& command)
 
 }
 
-void NaLIRSystem::createConll(std::vector<std::string> words)
-{
-  std::vector<std::string>::iterator it;
-  it = words.begin();
-  int iterate = 0;
-  ofstream conllTagging;
-  conllTagging.open("../data/NaLIR.conll.tagging"); 
-  for (it = words.begin(); it<words.end(); it++) {
-      //std::cout << iterate <<"\t" << *it <<endl;
-      conllTagging << *it <<"\t_" << endl;
-      ++iterate;
-  }
-  conllTagging.close();
-
-
-}
-
-void NaLIRSystem::createConllPredictedTags()
-{
-//  std::vector<std::string>::iterator it;
-//  it = words.begin();
-//  for (it = words.begin(); it<words.end(); it++) {
-//      conllTagging << iterate <<"\t" << *it <<"\t" <<"_" << endl;
-//      //conllTagging << *it <<"\t_" << endl;
-//      ++iterate;
-//  }
-//  conllTagging.close();
-//
-    std::string line;
-    std::ifstream inputFile("../data/NaLIR.conll.tagging.pred");
-    std::string first,second;
-    int iterate = 0;
-    ofstream conllTagging;
-    conllTagging.open("../data/NaLIR.conll.predpos"); 
-    while (std::getline(inputFile, line))
-    {
-        ++iterate;
-        std::istringstream iss(line);
-        //cout << line <<endl;
-        first = line.substr(0,line.find("\t"));
-        second = line.substr(line.find("\t")+1,line.length());
-        //cout<< first << " and " << second << endl;
-        if(!line.empty()) {
-            conllTagging<< iterate << "\t" <<first << "\t" << "_"  << "\t" << second << "\t" << second<< "\t" << "_" << "\t" << "_" << "\t" << "_" <<endl;
-        }
-    }
-    conllTagging.close();
-
-}
-
-int NaLIRSystem::countWords(std::string& strString)
-{
-  int nSpaces = 0;
-  unsigned int i = 0;
-  // Skip over spaces at the beginning of the word
-  while(isspace(strString.at(i)))
-    i++;
-  //cout<<i<<endl;
-
-  for(; i < strString.length()-1; i++)
-  {
-    if(isspace(strString.at(i)))
-    {
-      nSpaces++;
-
-      // Skip over duplicate spaces & if a NULL character is found, we're at the end of the string
-      while(isspace(strString.at(++i)))
-        if(strString.at(i) == '\0') 
-          nSpaces--;
-    }
-  }
-  return nSpaces+1;
-
-}
-
 std::vector <std::string> NaLIRSystem::vectorizeWords(std::string& strString)
 {
   //cout<<strString<<endl;
@@ -293,6 +226,32 @@ std::vector <std::string> NaLIRSystem::vectorizeWords(std::string& strString)
   }
   return words;
 }
+
+int NaLIRSystem::countWords(std::string& strString)
+{
+  int nSpaces = 0;
+  unsigned int i = 0;
+  // Skip over spaces at the beginning of the word
+  while(isspace(strString.at(i)))
+    i++;
+  //cout<<i<<endl;
+
+  for(; i < strString.length()-1; i++)
+  {
+    if(isspace(strString.at(i)))
+    {
+      nSpaces++;
+
+      // Skip over duplicate spaces & if a NULL character is found, we're at the end of the string
+      while(isspace(strString.at(++i)))
+        if(strString.at(i) == '\0') 
+          nSpaces--;
+    }
+  }
+  return nSpaces+1;
+
+}
+
 
 //void Sentence::wordSplit(std::string& queryInput)
 //{

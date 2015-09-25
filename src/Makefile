@@ -4,8 +4,8 @@ CFLAGS = -Wall -g
 
 INCLUDES = -I ../include/ 
 
-# define the C source files
-SRCS = NaLIRSystem.cpp Sentence.cpp
+# define the CXX source files
+SRCS = NaLIRSystem.cpp Sentence.cpp TurboParser.cpp
 
 OBJS = $(SRCS:.c=.o)
 
