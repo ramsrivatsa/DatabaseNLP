@@ -1,11 +1,11 @@
 CC = g++
 
-CFLAGS = -Wall -g
+CFLAGS = -std=c++0x -Wall -g
 
 INCLUDES = -I ../include/ 
 
 # define the CXX source files
-SRCS = NaLIRSystem.cpp Sentence.cpp TurboParser.cpp
+SRCS = NaLIRSystem.cpp Sentence.cpp TurboParser.cpp ParseTreeNode.cpp
 
 OBJS = $(SRCS:.c=.o)
 

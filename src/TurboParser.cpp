@@ -7,6 +7,7 @@
 #include<sstream>
 #include<vector>
 #include "TurboParser.h"
+#include "ParseTree.h"
 
 using namespace std;
 
@@ -34,6 +35,7 @@ void TurboParser::parseDependencyOutput()
     std::string line;
     std::ifstream inputFile("../data/NaLIR.conll.predpos.pred");
     int tempPos=0;
+    int tempCount;
     std::string tempString;
     std::string subString;
     while (std::getline(inputFile, line))
@@ -41,6 +43,7 @@ void TurboParser::parseDependencyOutput()
         //cout << line <<endl;
         std::istringstream iss(line);
         tempString = line;
+        tempCount=0;
         while(tempString.find("\t") != std::string::npos) {
           //cout << "a" << tempString <<endl;
           subString = tempString.substr(0,tempString.find("\t"));
@@ -48,7 +51,9 @@ void TurboParser::parseDependencyOutput()
           //cout << "b" << subString <<"-end sub " << tempPos<< "-end temppos" <<endl;
           tempString = tempString.substr(tempPos,tempString.length());
           //cout << "c" << tempString <<endl;
-          treeTableEntry.push_back(subString);
+          if(tempCount == 0 || tempCount == 1 || tempCount == 3 || tempCount == 6 || tempCount == 7 )
+            treeTableEntry.push_back(subString);
+          ++tempCount;
         }
         treeTableEntry.push_back(tempString);
         treeTable.push_back(treeTableEntry);
@@ -59,9 +64,12 @@ void TurboParser::parseDependencyOutput()
 
 void TurboParser::viewDependencyOutput() 
 {
+    //cout << treeTable.size() << endl;
     std::vector <std::vector <std::string> >::iterator row;
     std::vector <std::string>::iterator column;
     for (row = treeTable.begin(); row != treeTable.end(); row++) {
+
+        //cout << (*row).size() << endl;
       for (column = row->begin(); column != row->end(); column++) {
           cout << *column << " ";
       }
@@ -99,5 +107,29 @@ void TurboParser::createConllPredictedTags()
         }
     }
     conllTagging.close();
+
+}
+
+void TurboParser::buildTree()
+{
+    bool *doneList;
+    int sizeOfTree = treeTable.size();
+    doneList = new bool[sizeOfTree];
+    ParseTree tree;
+    //cout << sizeof(doneList) << " " << sizeOfTree<<endl;
+    for (int i=0; i<sizeOfTree; i++) {
+        doneList[i] = false;
+    }
+    //cout << treeTable[1][0][0] << endl;
+    
+    for (int i=0; i<sizeOfTree; i++) {
+        //cout << treeTable[i][1] << endl;
+        //cout << i <<endl;
+        if(treeTable[i][0][0] != 0 && treeTable[i][3] == "0") {
+            //cout<<"once coming here \n";
+            tree.buildNode(treeTable[i]);
+            doneList[i] = true;
+        }
+    }
 
 }

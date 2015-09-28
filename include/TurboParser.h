@@ -9,6 +9,7 @@ class TurboParser
         void createConllPredictedTags();
         void parseDependencyOutput();
         void viewDependencyOutput();
+        void buildTree();
 
 };
 #endif

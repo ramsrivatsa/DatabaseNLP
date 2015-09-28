@@ -52,6 +52,7 @@ void NaLIRSystem::conductCommand(std::string& command)
         
         turboParser.parseDependencyOutput();
         //turboParser.viewDependencyOutput();
+        turboParser.buildTree();
 
         //cout<<numberOfWords<<endl;
         //
