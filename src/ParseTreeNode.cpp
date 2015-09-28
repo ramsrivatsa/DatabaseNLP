@@ -4,7 +4,7 @@
 #include "ParseTree.h"
 using namespace std;
 int NODEID=0;
-void ParseTree::buildNode(std::vector<std::string> input)
+bool ParseTree::buildNode(std::vector<std::string> input)
 {
     int temp;
     if(root.children.empty()) {
@@ -14,6 +14,7 @@ void ParseTree::buildNode(std::vector<std::string> input)
         //cout << node.label<<endl;
         root.children.push_back(node);
         allNodes.push_back(node);
+        return true;
     } else {
         std::vector <ParseTreeNode> list;
         list.push_back(root);
@@ -25,11 +26,13 @@ void ParseTree::buildNode(std::vector<std::string> input)
                 ParseTreeNode node(temp, input[1], input[2], input[4], &parent);
                 parent.children.push_back(node);
                 allNodes.push_back(node);
+                return true;
             }
             list = parent.children;   
         }
 
     }
+    return false;
 }
 
 //int convertString(const char *s)

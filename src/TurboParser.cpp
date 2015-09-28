@@ -132,4 +132,28 @@ void TurboParser::buildTree()
         }
     }
 
+    bool finished = false;
+    while(finished == false) {
+        for (int i=0; i<sizeOfTree; i++) {
+            if(doneList[i] == false) {
+                if(tree.buildNode(treeTable[i]) == true) {
+                    doneList[i] = true;
+                    break;
+                }
+            }
+        }
+
+        finished = true;
+
+        for (int i=0; i<sizeOfTree; i++) {
+            if(doneList[i] == false) {
+                finished = false;
+                break;
+            }
+
+        }
+    }
+
+
+
 }

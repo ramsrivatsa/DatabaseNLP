@@ -6,7 +6,7 @@
 class ParseTree 
 {
     public:
-        void buildNode(std::vector<std::string> input);
+        bool buildNode(std::vector<std::string> input);
         ParseTreeNode root;
         std::vector <ParseTreeNode> allNodes;
         std::vector <ParseTreeNode> parseTreeNodes;

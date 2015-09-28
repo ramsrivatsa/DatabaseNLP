@@ -1,1 +1,3 @@
 include/TurboParser
+data/*
+src/NaLIR
